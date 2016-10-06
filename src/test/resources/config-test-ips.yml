@@ -1,0 +1,13 @@
+kafka:
+  host: newsforge.com
+  port: 9092
+kafka.producer:
+  client.id: test
+  acks: 1
+  retries: 5
+  retry.backoff.ms: 1000
+  reconnect.backoff.ms: 1000
+  key.serializer: org.apache.kafka.common.serialization.StringSerializer
+  value.serializer: org.apache.kafka.common.serialization.StringSerializer
+  batch.size: 32000
+  linger.ms: 10

@@ -1,0 +1,29 @@
+kafka:
+  bootstrap.servers: 0.0.0.0:9092,0.0.0.0:9002
+  host: kafka.arc2.nile.works
+  port: 9092
+kafka.producer:
+  client.id: test
+  acks: 1
+  retries: 5
+  retry.backoff.ms: 1000
+  reconnect.backoff.ms: 1000
+  key.serializer: org.apache.kafka.common.serialization.StringSerializer
+  value.serializer: org.apache.kafka.common.serialization.StringSerializer
+  batch.size: 32000
+  linger.ms: 10
+  publish.path: "/kafka/publish"
+  port: 8080
+kafka.consumers:
+  -
+    topics: "test1,test2"
+    group.id: testgroup1
+    callback.url: "http://localhost/process"
+    failure.topic: "failure1"
+    failure.retries: 3
+    dead.topic: "dead1"
+    dead.callback.url: "http://localhost/dead"
+  -
+    topics: "test3,test4"
+    group.id: testgroup2
+    failure.topic: "failure2"
