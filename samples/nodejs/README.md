@@ -3,6 +3,7 @@
 Assumes you already have a Kafka cluster running.
 
 Step 1: Build docker images.
+* Update the [config/config.yml](config/config.yml) to use your Kafka cluster and settings
 * Build kafka-service-interface docker image (docker-compose build)
 * Build this node.js sample docker image (docker-compose build)
 
