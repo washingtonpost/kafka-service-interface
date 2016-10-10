@@ -9,13 +9,18 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 
 /**
- * Created by findleyr on 10/6/16.
+ * Configure the Kafka consumer as defined in the <strong>config.location</strong> yaml file.  Expose this
+ * Kafka producer as a singleton.
  */
 public class KafkaProducer {
     final static Logger logger = Logger.getLogger(KafkaProducer.class);
     private static KafkaProducer instance;
     private org.apache.kafka.clients.producer.KafkaProducer producer;
 
+    /**
+     * Configure the Kafka consumer as defined in the <strong>config.location</strong> yaml file.  Expose this
+     * Kafka producer as a singleton.
+     */
     private KafkaProducer() {
         //
         // Setup Kafka producer
@@ -23,18 +28,15 @@ public class KafkaProducer {
         // http://kafka.apache.org/082/documentation.html#producerconfigs
         Properties props = new Properties();
         props.put("bootstrap.servers", Configuration.get().getKafka().bootstrapServers);
-        props.put("client.id", Configuration.get().getKafkaProducer().clientId);
-        props.put("acks", Configuration.get().getKafkaProducer().acks);
-        props.put("retries", Configuration.get().getKafkaProducer().retries);
-        props.put("retry.backoff.ms", Configuration.get().getKafkaProducer().retryBackoffMs);
-        props.put("reconnect.backoff.ms", Configuration.get().getKafkaProducer().reconnectBackoffMs);
-        props.put("key.serializer", Configuration.get().getKafkaProducer().keySerializer);
-        props.put("value.serializer", Configuration.get().getKafkaProducer().valueSerializer);
-        props.put("batch.size", Configuration.get().getKafkaProducer().batchSize);
-        props.put("linger.ms", Configuration.get().getKafkaProducer().lingerMs);
+        for (String key : Configuration.get().getKafkaProducer().properties.keySet())
+            props.put(key, Configuration.get().getKafkaProducer().properties.get(key));
         producer = new org.apache.kafka.clients.producer.KafkaProducer(props);
     }
 
+    /**
+     * Return the instance of this singleton.
+     * @return
+     */
     public static KafkaProducer get() {
         if (instance == null) instance = new KafkaProducer();
         return instance;
@@ -52,6 +54,14 @@ public class KafkaProducer {
         }
     }
 
+    /**
+     * Send the message to the Kafka topic.
+     *
+     * @param topic
+     * @param key
+     * @param message
+     * @return true if the message was successfully sent, false if not.
+     */
     public boolean send(String topic, String key, String message) {
         MyCallback myCallback = new MyCallback();
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, message);

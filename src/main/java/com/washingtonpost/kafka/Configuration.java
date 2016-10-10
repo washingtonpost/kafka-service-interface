@@ -10,14 +10,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Created by findleyr on 10/6/16.
+ * Parse the yaml configuration file and provide the information through a singleton.
  */
 public class Configuration {
     final static Logger logger = Logger.getLogger(Configuration.class);
     private static Configuration instance = null;
     private Config config = null;
+
+    /**
+     * Construct this class by parsing the yaml file.
+     * We also fetch the bootstrap servers if needed.
+     */
     private Configuration() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
@@ -37,6 +43,12 @@ public class Configuration {
         }
     }
 
+    /**
+     * Get the configuration instance.  Will attempt to parse the <strong>config.location</strong> yaml file on first
+     * invocation.
+     *
+     * @return
+     */
     public static Configuration get() {
         if (instance == null) instance = new Configuration();
         return instance;
@@ -68,40 +80,13 @@ public class Configuration {
         public String port;
     }
     public static class KafkaProducer {
-        @JsonProperty("client.id")
-        public String clientId;
-        public String acks;
-        public String retries;
-        @JsonProperty("retry.backoff.ms")
-        public String retryBackoffMs;
-        @JsonProperty("reconnect.backoff.ms")
-        public String reconnectBackoffMs;
-        @JsonProperty("key.serializer")
-        public String keySerializer;
-        @JsonProperty("value.serializer")
-        public String valueSerializer;
-        @JsonProperty("batch.size")
-        public int batchSize;
-        @JsonProperty("linger.ms")
-        public String lingerMs;
         @JsonProperty("publish.path")
         public String publishPath;
         public int port;
+        public Map<String, String> properties;
     }
     public static class KafkaConsumer {
-        @JsonProperty("group.id")
-        public String groupId;
-        @JsonProperty("max.partition.fetch.bytes")
-        public String maxPartitionFetchBytes;
         public String topics;
-        @JsonProperty("enable.auto.commit")
-        public String enableAutoCommit;
-        @JsonProperty("key.deserializer")
-        public String keyDeserializer;
-        @JsonProperty("value.deserializer")
-        public String valueDeserializer;
-        @JsonProperty("max.poll.records")
-        public String maxPollRecords;
         @JsonProperty("callback.url")
         public String callbackUrl;
         @JsonProperty("failure.topic")
@@ -112,6 +97,7 @@ public class Configuration {
         public String deadTopic;
         @JsonProperty("dead.callback.url")
         public String deadCallbackUrl;
+        public Map<String, String> properties;
     }
 
     private static String fetchKafkaIPs(String domain, String port) {

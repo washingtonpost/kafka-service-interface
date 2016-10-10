@@ -3,27 +3,35 @@ kafka:
   host: kafka.arc2.nile.works
   port: 9092
 kafka.producer:
-  client.id: test
-  acks: 1
-  retries: 5
-  retry.backoff.ms: 1000
-  reconnect.backoff.ms: 1000
-  key.serializer: org.apache.kafka.common.serialization.StringSerializer
-  value.serializer: org.apache.kafka.common.serialization.StringSerializer
-  batch.size: 32000
-  linger.ms: 10
   publish.path: "/kafka/publish"
   port: 8080
+  properties:
+    client.id: "test"
+    acks: "1"
+    retries: "5"
+    retry.backoff.ms: "1000"
+    reconnect.backoff.ms: "1000"
+    key.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+    value.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+    batch.size: "32000"
+    linger.ms: "10"
 kafka.consumers:
   -
     topics: "test1,test2"
-    group.id: testgroup1
     callback.url: "http://localhost/process"
     failure.topic: "failure1"
     failure.retries: 3
     dead.topic: "dead1"
     dead.callback.url: "http://localhost/dead"
+    properties:
+      group.id: "testgroup1"
+      max.partition.fetch.bytes: "10000"
+      enable.auto.commit: "false"
+      key.deserializer: "org.apache.kafka.common.serialization.StringSerializer"
+      value.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+      max.poll.records: "100"
   -
     topics: "test3,test4"
-    group.id: testgroup2
     failure.topic: "failure2"
+    properties:
+      group.id: testgroup2

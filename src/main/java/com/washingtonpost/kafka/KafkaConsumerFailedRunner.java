@@ -57,9 +57,12 @@ public class KafkaConsumerFailedRunner extends KafkaConsumerRunner {
                 if (isDead) {
                     message.put("dead_on", now.getTime());
                     message.put("dead_on_date", dateFormat.format(now));
-                    if (!KafkaProducer.get().send(consumerConfig.deadTopic, message.get("key").asText(), mapper.writeValueAsString(message))) {
-                        throw new Exception("Unable to publish to dead topic");
-                    } else {
+                    if (consumerConfig.deadTopic != null) {
+                        if (!KafkaProducer.get().send(consumerConfig.deadTopic, message.get("key").asText(), mapper.writeValueAsString(message))) {
+                            throw new Exception("Unable to publish to dead topic");
+                        }
+                    }
+                    if (consumerConfig.deadCallbackUrl != null) {
                         if (!sendDeadMessage(message)) {
                             throw new Exception("Unable to publish to dead callback");
                         }
@@ -81,12 +84,17 @@ public class KafkaConsumerFailedRunner extends KafkaConsumerRunner {
      * @return
      * @throws Exception
      */
-    protected boolean sendDeadMessage(ObjectNode message) throws Exception {
-        HttpResponse<String> response = Unirest.post(consumerConfig.deadCallbackUrl)
-                .header("accept", "application/json")
-                .body(mapper.writeValueAsBytes(message))
-                .asString();
-        logger.debug("Response: "+response.getBody());
-        return response.getStatus() == 200;
+    protected boolean sendDeadMessage(ObjectNode message) {
+        try {
+            HttpResponse<String> response = Unirest.post(consumerConfig.deadCallbackUrl)
+                    .header("accept", "application/json")
+                    .body(mapper.writeValueAsBytes(message))
+                    .asString();
+            logger.debug("Response: " + response.getBody());
+            return response.getStatus() == 200;
+        } catch (Exception e) {
+            logger.error(e);
+            return false;
+        }
     }
 }

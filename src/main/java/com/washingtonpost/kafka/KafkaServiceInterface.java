@@ -3,22 +3,16 @@ package com.washingtonpost.kafka;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import static spark.Spark.port;
 import static spark.Spark.post;
 
 /**
- * Created by findleyr on 10/6/16.
+ * Initiate the Kafka producer and consumers as defined in the <strong>config.location</strong> yaml file.
  */
 public class KafkaServiceInterface {
     final static Logger logger = Logger.getLogger(KafkaServiceInterface.class);
@@ -27,7 +21,7 @@ public class KafkaServiceInterface {
         logger.info("KafkaServiceInterface started!");
 
         //
-        // Set up WS
+        // Set up Kafka producer WS
         //
         port(Configuration.get().getKafkaProducer().port);
         post(Configuration.get().getKafkaProducer().publishPath, (req, res) -> {
@@ -55,7 +49,7 @@ public class KafkaServiceInterface {
         Unirest.setTimeouts(5 * 60 * 1000, 30 * 1000);
 
         //
-        // Setup the consumers.
+        // Setup the Kafka consumers.
         //
         ExecutorService executor = Executors.newFixedThreadPool(Configuration.get().getKafkaConsumers().size()*2);
         for (Configuration.KafkaConsumer consumer : Configuration.get().getKafkaConsumers()) {

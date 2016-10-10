@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "notify": "editor-tools-team-hal",
+      "branch": "master",
+      "version": "1.0.0",
+      "tags": ["latest"],
+      "autodeploy": false
+    }
+  ]
+}
