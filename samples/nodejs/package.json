@@ -1,0 +1,24 @@
+{
+  "name": "kakfa-service-interface-sample",
+  "version": "1.0.0",
+  "description": "Kafka Service Interface Node.js Sample",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "kafka",
+    "node",
+    "nodejs",
+    "interface",
+    "publisher",
+    "consumer"
+  ],
+  "author": "Randy Findley",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.15.1",
+    "request": "^2.75.0",
+    "winston": "^2.2.0"
+  }
+}

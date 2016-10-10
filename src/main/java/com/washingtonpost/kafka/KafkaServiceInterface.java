@@ -23,12 +23,13 @@ public class KafkaServiceInterface {
         //
         // Set up Kafka producer WS
         //
+        logger.info("Add spark endpoint :"+Configuration.get().getKafkaProducer().port+Configuration.get().getKafkaProducer().publishPath);
         port(Configuration.get().getKafkaProducer().port);
         post(Configuration.get().getKafkaProducer().publishPath, (req, res) -> {
             boolean success = false;
             try {
                 ObjectMapper mapper = new ObjectMapper();
-                logger.info(req.body());
+                logger.debug(req.body());
                 JsonNode message = mapper.readTree(req.body());
 
                 //

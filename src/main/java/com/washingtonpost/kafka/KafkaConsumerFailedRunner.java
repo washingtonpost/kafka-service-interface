@@ -7,6 +7,7 @@ import com.mashape.unirest.http.Unirest;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -17,8 +18,13 @@ import java.util.List;
 public class KafkaConsumerFailedRunner extends KafkaConsumerRunner {
     final static Logger logger = Logger.getLogger(KafkaConsumerFailedRunner.class);
     public KafkaConsumerFailedRunner(Configuration.KafkaConsumer consumerConfig) {
-        super(consumerConfig);
-        this.topics = Arrays.asList(consumerConfig.failureTopic);
+        logger.info("Failure Kafka Consumer Started! topics = "+consumerConfig.failureTopic);
+        this.consumerConfig = consumerConfig;
+        this.topics = Arrays.asList(consumerConfig.failureTopic.split(","));
+        List<String> tags = new ArrayList<>();
+        for (String topic : this.topics)
+            tags.add("topic:"+topic);
+        this.topicTags = tags.toArray(new String[0]);
     }
 
     /**
@@ -88,6 +94,7 @@ public class KafkaConsumerFailedRunner extends KafkaConsumerRunner {
         try {
             HttpResponse<String> response = Unirest.post(consumerConfig.deadCallbackUrl)
                     .header("accept", "application/json")
+                    .header("Content-Type", "application/json")
                     .body(mapper.writeValueAsBytes(message))
                     .asString();
             logger.debug("Response: " + response.getBody());

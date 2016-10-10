@@ -15,3 +15,4 @@ docker-compose.override.yml
 docker-compose.yml
 .idea
 target
+samples/nodejs/node_modules

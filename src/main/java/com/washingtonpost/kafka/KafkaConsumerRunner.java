@@ -33,29 +33,39 @@ public class KafkaConsumerRunner implements Runnable {
     protected Configuration.KafkaConsumer consumerConfig;
     private KafkaConsumer<String, String> consumer = null;
     protected List<String> topics;
-    private String[] topicTags;
+    protected String[] topicTags;
 
     protected static final ObjectMapper mapper = new ObjectMapper();
 
+    public KafkaConsumerRunner() {}
+
     public KafkaConsumerRunner(Configuration.KafkaConsumer consumerConfig) {
+        logger.info("Kafka Consumer! topics = "+consumerConfig.topics);
         this.consumerConfig = consumerConfig;
         this.topics = Arrays.asList(consumerConfig.topics.split(","));
         List<String> tags = new ArrayList<>();
-        for (String topic : topics) 
-            tags.add("topic:"+topic);
-        this.topicTags = (String[]) tags.toArray();
+        for (String topic : this.topics) {
+            logger.info("topic: "+topic);
+            tags.add("topic:" + topic);
+        }
+        this.topicTags = tags.toArray(new String[0]);
     }
 
     private KafkaConsumer<String, String> consumer() {
         Properties props = new Properties();
-        props.put("bootstrap.servers", Configuration.get().getKafka().bootstrapServers);
-        for (String key : consumerConfig.properties.keySet())
+        if (!consumerConfig.properties.containsKey("zookeeper.connect")) {
+            props.put("bootstrap.servers", Configuration.get().getKafka().bootstrapServers);
+            logger.info("Kafka Consumer bootstrap.servers = " + Configuration.get().getKafka().bootstrapServers);
+        }
+        for (String key : consumerConfig.properties.keySet()) {
             props.put(key, consumerConfig.properties.get(key));
+            logger.info("Kafka Consumer property "+key+" = "+consumerConfig.properties.get(key));
+        }
         return new KafkaConsumer<>(props);
     }
 
     public void run() {
-
+        logger.info("Kafka Consumer Started! topics = "+consumerConfig.topics);
         boolean subscribed = false;
         while(true) {
 
@@ -66,15 +76,16 @@ public class KafkaConsumerRunner implements Runnable {
                 if (!subscribed) {
                     subscribed = true;
                     consumer = consumer();
+                    logger.info("Consumer Subscribe Start");
                     consumer.subscribe(topics);
-                    logger.debug("Consumer Subscribe");
+                    logger.info("Consumer Subscribe Done");
                 }
 
                 //
                 // Poll for messages
                 //
                 Date startLatency = new Date();
-                logger.debug("Consumer Poll");
+                logger.info("Consumer Poll");
                 StatsDService.getStatsDClient().count("kafka.poll.int", 1, topicTags);
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(Long.MAX_VALUE);
                 StatsDService.getStatsDClient().count("kafka.poll.success.int", 1, topicTags);
@@ -91,7 +102,7 @@ public class KafkaConsumerRunner implements Runnable {
                     //
                     long lastOffset = partitionRecords.get(partitionRecords.size()-1).offset();
                     consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(lastOffset + 1)));
-                    logger.debug("Consumer Commit Sync, partition="+partition+", offset="+(lastOffset+1));
+                    logger.info("Consumer Commit Sync, partition="+partition+", offset="+(lastOffset+1));
                 }
                 //
                 // Record the latency of the entire consumer.poll()
@@ -129,6 +140,7 @@ public class KafkaConsumerRunner implements Runnable {
         for (ConsumerRecord<String, String> record : partitionRecords) {
             logger.debug("topic: " + record.topic());
             logger.debug("key: " + record.key());
+            logger.debug("value: " + record.value());
             logger.debug("offset: " + record.offset());
             logger.debug("partition: " + record.partition());
             Date now = new Date();
@@ -185,9 +197,11 @@ public class KafkaConsumerRunner implements Runnable {
      */
     protected boolean sendForProcessing(ArrayNode messages) {
         try {
+            logger.debug("Sending: "+mapper.writeValueAsString(messages));
             HttpResponse<String> response = Unirest.post(consumerConfig.callbackUrl)
                     .header("accept", "application/json")
-                    .body(mapper.writeValueAsBytes(messages))
+                    .header("Content-Type", "application/json")
+                    .body(mapper.writeValueAsString(messages))
                     .asString();
             logger.debug("Response: " + response.getBody());
             return response.getStatus() == 200;
