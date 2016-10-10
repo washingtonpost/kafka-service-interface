@@ -1,0 +1,20 @@
+services:
+  kafkaserviceinterfacesample:
+    build: .
+    links:
+      - kafkaserviceinterface
+    environment:
+      KAFKA_PUBLISH_URL: 'http://kafkaserviceinterface:8080/kafka/publish'
+      KAFKA_TOPIC: 'kafkaserviceinterfacesample.topic1'
+      KAFKA_TOPIC_TEST: 'kafkaserviceinterfacesample.test1'
+
+  kafkaserviceinterface:
+    image: quay.io/washpost/kafka-service-interface
+    volumes:
+      - ./config:/config
+    environment:
+      app.name: 'Kafka Service Interface Node.js Sample'
+      vpc: 'arc2'
+      config.location: '/config/config.yml'
+
+version: '2'

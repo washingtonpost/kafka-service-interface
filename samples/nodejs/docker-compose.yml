@@ -1,0 +1,4 @@
+services:
+  kafkaserviceinterfacesample:
+
+version: '2'
