@@ -2,6 +2,7 @@ kafka:
   host: "kafka.arc2.nile.works"
   port: "9092"
 kafka.producer:
+  # Other services will call this endpoint to publish to Kafka.  http:<service name>:8080/kafka/publish
   publish.path: "/kafka/publish"
   port: 8080
   properties:
@@ -17,10 +18,15 @@ kafka.producer:
 kafka.consumers:
   -
     topics: "kafkaserviceinterfacesample.topic1"
+    # For this consumer, when messages are read from Kafka, this endpoint will be called.
     callback.url: "http://kafkaserviceinterfacesample:3000/kafka-consumption-callback"
+    # If the endpoint above fails the message will be put on this (optional) topic.
     failure.topic: "kafkaserviceinterfacesample.failure1"
+    # Failed messages will be retried <failure.retries> number of times before they are moved to the <dead.topic>
     failure.retries: 3
+    # Once the message has failed <failure.retries> times, it is moved to the (optional> <dead.topic>.
     dead.topic: "kafkaserviceinterfacesample.dead1"
+    # Once moved to the <dead.topic> the message is also sent to this (optional) callback url.
     dead.callback.url: "http://kafkaserviceinterfacesample:3000/dead-callback"
     properties:
       group.id: "kafkaserviceinterfacesample.test"

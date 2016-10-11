@@ -4,6 +4,7 @@ services:
     links:
       - kafkaserviceinterface
     environment:
+      # The sample will publish kafka messages to this callback url hosted by the Kafka Service Interface.
       KAFKA_PUBLISH_URL: 'http://kafkaserviceinterface:8080/kafka/publish'
       KAFKA_TOPIC: 'kafkaserviceinterfacesample.topic1'
       KAFKA_TOPIC_TEST: 'kafkaserviceinterfacesample.test1'
@@ -15,6 +16,7 @@ services:
     environment:
       app.name: 'Kafka Service Interface Node.js Sample'
       vpc: 'arc2'
+      # Configuration file used to define the Kafka publisher and consumers.
       config.location: '/config/config.yml'
 
 version: '2'
