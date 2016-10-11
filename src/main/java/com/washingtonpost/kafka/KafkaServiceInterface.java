@@ -52,11 +52,13 @@ public class KafkaServiceInterface {
         //
         // Setup the Kafka consumers.
         //
-        ExecutorService executor = Executors.newFixedThreadPool(Configuration.get().getKafkaConsumers().size()*2);
-        for (Configuration.KafkaConsumer consumer : Configuration.get().getKafkaConsumers()) {
-            executor.submit(new KafkaConsumerRunner(consumer));
-            if (consumer.failureTopic != null) {
-                executor.submit(new KafkaConsumerFailedRunner(consumer));
+        if (Configuration.get().getKafkaConsumers() != null && Configuration.get().getKafkaConsumers().size() > 0) {
+            ExecutorService executor = Executors.newFixedThreadPool(Configuration.get().getKafkaConsumers().size() * 2);
+            for (Configuration.KafkaConsumer consumer : Configuration.get().getKafkaConsumers()) {
+                executor.submit(new KafkaConsumerRunner(consumer));
+                if (consumer.failureTopic != null) {
+                    executor.submit(new KafkaConsumerFailedRunner(consumer));
+                }
             }
         }
     }
