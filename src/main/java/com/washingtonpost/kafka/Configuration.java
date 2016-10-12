@@ -3,6 +3,8 @@ package com.washingtonpost.kafka;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -29,11 +31,29 @@ public class Configuration {
         try {
             String configLocation = System.getProperty("config.location");
             if (configLocation == null) configLocation = System.getenv("config.location");
-            File configFile = new File(configLocation);
-            if (configFile.exists())
-                config = mapper.readValue(configFile, Config.class);
-            else
-                config = mapper.readValue(getClass().getClassLoader().getResourceAsStream(configLocation), Config.class);
+            if (configLocation != null) {
+                logger.info("Using config.location "+configLocation);
+                File configFile = new File(configLocation);
+                if (configFile.exists())
+                    config = mapper.readValue(configFile, Config.class);
+                else
+                    config = mapper.readValue(getClass().getClassLoader().getResourceAsStream(configLocation), Config.class);
+            } else {
+                String configUrl = System.getenv("config.url");
+                logger.info("Using config.url "+configUrl);
+                HttpResponse<String> response = Unirest.get(configUrl)
+                        .header("accept", "text/plain")
+                        .asString();
+                if (response.getStatus() != 200) {
+                    throw new Exception(configUrl+" returned non 200 http response.");
+                }
+                String body = response.getBody();
+                if (body == null || body.isEmpty()) {
+                    throw new Exception(configUrl+" response is empty");
+                }
+                logger.info(body);
+                config = mapper.readValue(body, Config.class);
+            }
 
             if (config.kafka.bootstrapServers == null && config.kafka.host != null && config.kafka.port != null) {
                 config.kafka.bootstrapServers = fetchKafkaIPs(config.kafka.host, config.kafka.port);
