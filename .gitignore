@@ -16,3 +16,8 @@ hs_err_pid*
 .idea
 target
 samples/nodejs/node_modules
+.project
+.classpath
+.settings/
+.vscode
+

@@ -1,0 +1,18 @@
+kafka:
+  host: "kafka.tgam.nile.works kafka.washpost.nile.works"
+  port: "9094"
+  use.ip: "true"
+kafka.producer:
+  # Other services will call this endpoint to publish to Kafka.  http:<service name>:8080/kafka/publish
+  publish.path: "/kafka/publish"
+  port: 8181
+  properties:
+    client.id: "arc-author-service-unit-test"
+    acks: "1"
+    retries: "5"
+    retry.backoff.ms: "1000"
+    reconnect.backoff.ms: "1000"
+    key.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+    value.serializer: "org.apache.kafka.common.serialization.StringSerializer"
+    batch.size: "32768"
+    linger.ms: "10"
