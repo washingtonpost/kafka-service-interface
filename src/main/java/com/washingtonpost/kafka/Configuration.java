@@ -93,7 +93,7 @@ public class Configuration {
     }
 
     boolean useIp(final String value) {
-        return value == null || BooleanUtils.isTrue(BooleanUtils.toBooleanObject(value));
+        return Strings.isNullOrEmpty(value) || BooleanUtils.isTrue(BooleanUtils.toBooleanObject(value));
     }
 
     String appendPort(final String host, final int port) {

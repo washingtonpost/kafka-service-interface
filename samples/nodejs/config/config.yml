@@ -1,6 +1,8 @@
 kafka:
   host: "kafka.arc2.nile.works"
   port: "9092"
+  # use.ip is optional; not using this defaults to true for backward compatibility
+  use.ip: "true"
 kafka.producer:
   # Other services will call this endpoint to publish to Kafka.  http:<service name>:8080/kafka/publish
   publish.path: "/kafka/publish"
