@@ -28,8 +28,8 @@ import java.util.stream.Stream;
 public class Configuration {
     private final static Logger LOGGER = Logger.getLogger(Configuration.class);
 
-    final static String CONFIG_LOCATION = "config.location";
-    final static String CONFIG_URL = "config.url";
+    final static String CONFIG_LOCATION = "config_location";
+    final static String CONFIG_URL = "config_url";
 
     final static String COMMA = ",";
     final static String COLON = ":";
@@ -44,12 +44,12 @@ public class Configuration {
     private Configuration() {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         try {
-            String configLocation = System.getProperty("config.location");
+            String configLocation = System.getProperty("config_location");
             if (configLocation == null) {
-                configLocation = System.getenv("config.location");
+                configLocation = System.getenv("config_location");
             }
             if (configLocation != null) {
-                LOGGER.info("Using config.location "+configLocation);
+                LOGGER.info("Using config_location "+configLocation);
                 File configFile = new File(configLocation);
                 if (configFile.exists()) {
                     config = mapper.readValue(configFile, Config.class);
@@ -57,8 +57,8 @@ public class Configuration {
                     config = mapper.readValue(getClass().getClassLoader().getResourceAsStream(configLocation), Config.class);
                 }
             } else {
-                String configUrl = System.getenv("config.url");
-                LOGGER.info("Using config.url "+configUrl);
+                String configUrl = System.getenv("config_url");
+                LOGGER.info("Using config_url "+configUrl);
                 HttpResponse<String> response = Unirest.get(configUrl)
                         .header("accept", "text/plain")
                         .asString();

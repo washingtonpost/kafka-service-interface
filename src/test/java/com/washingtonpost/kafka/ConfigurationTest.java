@@ -33,7 +33,7 @@ public class ConfigurationTest {
 
     @Test
     public void testConfigGood() {
-        System.setProperty("config.location", "config-test-good.yml");
+        System.setProperty("config_location", "config-test-good.yml");
 
         final Configuration config = Configuration.get();
         

@@ -1,10 +1,10 @@
-FROM debian:9
+FROM openjdk:8
 
 RUN apt-get update --fix-missing
 RUN apt-get install -y net-tools \
                    dnsutils \
                    supervisor \
-                   openjdk-8-jdk \
+                   bash \
                    maven
 
 # Bundle app source
